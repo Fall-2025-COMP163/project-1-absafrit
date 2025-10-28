@@ -1,13 +1,15 @@
 """
 COMP 163 - Project 1: Character Creator & Saving/Loading
-Name: [Your Name Here]
-Date: [Date]
+Name: Arina Safrit
+Date: 10/28/2025
 
 AI Usage: [Document any AI assistance used]
 Example: AI helped with file I/O error handling logic in save_character function
 """
 
-def create_character(name, character_class):
+import os
+
+def create_character(name, character_class, level = 1, gold = 100):
     """
     Creates a new character dictionary with calculated stats
     Returns: dictionary with keys: name, class, level, strength, magic, health, gold
@@ -18,7 +20,15 @@ def create_character(name, character_class):
     """
     # TODO: Implement this function
     # Remember to use calculate_stats() function for stat calculation
-    pass
+    character = {
+        "name": name,
+        "class": character_class,
+        "level": level,
+        "gold": gold
+    }
+    stats = calculate_stats(character_class, level)
+    character.update(stats)
+    return character
 
 def calculate_stats(character_class, level):
     """
@@ -33,36 +43,134 @@ def calculate_stats(character_class, level):
     """
     # TODO: Implement this function
     # Return a tuple: (strength, magic, health)
-    pass
+    if character_class == "Warrior":
+        strength = 10 + level * 4
+        magic = 10 + level * 2
+        health = 20 + level * 3
 
+    elif character_class == "Mage":
+        strength = 5 + level * 3
+        magic = 15 + level * 4
+        health = 20 + level * 2
+
+    elif character_class == "Rogue":
+        strength = 15 + level * 3
+        magic = 10 + level * 2
+        health = 15 + level * 4
+
+    elif character_class == "Cleric":
+        strength = 10 + level * 4
+        magic = 5 + level * 3
+        health = 25 + level * 2
+
+    else:
+        raise ValueError("Invalid class")
+
+    return {"strength": strength, "magic": magic, "health": health}
+    
 def save_character(character, filename):
     """
-    Saves character to text file in specific format
-    Returns: True if successful, False if error occurred
-    
-    Required file format:
-    Character Name: [name]
-    Class: [class]
-    Level: [level]
-    Strength: [strength]
-    Magic: [magic]
-    Health: [health]
-    Gold: [gold]
+    Saves character to a text file.
+    Returns True if successful, False if not.
     """
-    # TODO: Implement this function
-    # Remember to handle file errors gracefully
-    pass
+
+    # Special handling for absolute paths starting with /
+    if filename.startswith('/'):
+        print(f"Error saving character to {filename}: Invalid path")
+        return False
+
+    directory = os.path.dirname(filename)
+
+    # If directory doesn't exist, don't try to create it - just fail
+    if directory and not os.path.exists(directory):
+        print(f"Error saving character to {filename}: Directory does not exist")
+        return False
+
+    # Check write permission if directory exists
+    if directory and not os.access(directory, os.W_OK):
+        print(f"Error saving character to {filename}: No write permission in directory")
+        return False
+
+    # Check if filename is a directory
+    if os.path.isdir(filename):
+        print(f"Error saving character to {filename}: Target is a directory")
+        return False
+
+    # Write the file
+    f = open(filename, "w", encoding="utf-8")
+    f.write(f"Character Name: {character['name']}\n")
+    f.write(f"Class: {character['class']}\n")
+    f.write(f"Level: {character['level']}\n")
+    f.write(f"Strength: {character['strength']}\n")
+    f.write(f"Magic: {character['magic']}\n")
+    f.write(f"Health: {character['health']}\n")
+    f.write(f"Gold: {character['gold']}\n")
+    f.close()
+
+    return True
 
 def load_character(filename):
     """
-    Loads character from text file
-    Returns: character dictionary if successful, None if file not found
+    Loads character from text file.
+    Returns: character dictionary if successful, None if file not found.
     """
-    # TODO: Implement this function
-    # Remember to handle file not found errors
-    pass
+    # Check if file exists
+    if not os.path.exists(filename):
+        print(f"File '{filename}' not found.")
+        return None
 
-def display_character(character):
+    # Check read permissions
+    if not os.access(filename, os.R_OK):
+        print(f"Error loading character from {filename}: No read permission")
+        return None
+
+    # Check if filename is a directory
+    if os.path.isdir(filename):
+        print(f"Error loading character from {filename}: Target is a directory")
+        return None
+
+    # Read the file
+    f = open(filename, "r", encoding="utf-8")
+    lines = f.readlines()
+    f.close()
+
+    # Parse character data
+    character = {}
+    field_map = {
+        "Character Name": "name",
+        "Class": "class",
+        "Level": "level",
+        "Strength": "strength",
+        "Magic": "magic",
+        "Health": "health",
+        "Gold": "gold"
+    }
+
+    for line in lines:
+        if ": " in line:
+            key, value = line.strip().split(": ", 1)
+            if key in field_map:
+                field_name = field_map[key]
+                # Convert numeric values to integers
+                if field_name in ["level", "strength", "magic", "health", "gold"]:
+                    # Validate numeric content before converting
+                    if value.isdigit():
+                        value = int(value)
+                    else:
+                        print(f"Error loading character from {filename}: Invalid number for {field_name}")
+                        return None
+                character[field_name] = value
+
+    # Verify all required fields are present
+    required_fields = ["name", "class", "level", "strength", "magic", "health", "gold"]
+    if all(field in character for field in required_fields):
+        return character
+    else:
+        print(f"Error: File {filename} is missing required fields")
+        return None
+
+
+def display_character(character):      
     """
     Prints formatted character sheet
     Returns: None (prints to console)
@@ -77,8 +185,15 @@ def display_character(character):
     Health: 80
     Gold: 100
     """
-    # TODO: Implement this function
-    pass
+    print("=== CHARACTER SHEET ===")
+    print(f"Name: {character['name']}")
+    print(f"Class: {character['class']}")
+    print(f"Level: {character['level']}")
+    print(f"Strength: {character['strength']}")
+    print(f"Magic: {character['magic']}")
+    print(f"Health: {character['health']}")
+    print(f"Gold: {character['gold']}")
+    return None
 
 def level_up(character):
     """
@@ -86,17 +201,48 @@ def level_up(character):
     Modifies the character dictionary directly
     Returns: None
     """
-    # TODO: Implement this function
-    # Remember to recalculate stats for the new level
-    pass
+    print(f"\n{character['name']} is leveling up!")
+    character['level'] += 1
 
-# Main program area (optional - for testing your functions)
+    new_stats = calculate_stats(character['class'], character['level'])
+
+    print("Stat increases:")
+    for stat in ["strength", "magic", "health"]:
+        increase = new_stats[stat] - character[stat]
+        if increase > 0:
+            print(f"  {stat.capitalize()}: +{increase}")
+            character[stat] = new_stats[stat]
+
+    print(f"New level: {character['level']}")
+    return None
+
 if __name__ == "__main__":
-    print("=== CHARACTER CREATOR ===")
-    print("Test your functions here!")
     
     # Example usage:
     # char = create_character("TestHero", "Warrior")
     # display_character(char)
     # save_character(char, "my_character.txt")
     # loaded = load_character("my_character.txt")
+    print("=== CHARACTER CREATOR ===")
+    name = input("Enter your character's name: ")
+    character_class = input("Enter your character's class (Warrior, Mage, Rogue, Cleric): ")
+
+    # Create character
+    character = create_character(name, character_class)
+    print("\nCharacter Created Successfully!")
+    print(display_character(character))
+
+    # Save to file
+    filename = f"{name}_character.txt"
+    save_character(character, filename)
+    print(f"\nCharacter saved to {filename}")
+
+    # Load and show again
+    loaded_character = load_character(filename)
+    print("\nCharacter Loaded From File:")
+    print(display_character(loaded_character))
+
+    # Level up demonstration
+    level_up(character)
+    print("\nAfter Level Up:")
+    print(display_character(character))
