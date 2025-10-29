@@ -19,24 +19,26 @@ def create_character(name, character_class, level = 1, gold = 100):
     char = create_character("Aria", "Mage")
     # Should return: {"name": "Aria", "class": "Mage", "level": 1, "strength": 5, "magic": 15, "health": 80, "gold": 100}
     """
-    if strength is None or magic is None or health is None:
+    tempcharacter = calculate_stats(character_class, level)
+
+    if tempcharacter[0] is None or tempcharacter[1] is None or tempcharacter[2] is None:
         print(f"Error: Invalid character class '{character_class}'")
-        character = None
+
     else:
         character = {
             "name": name,
             "class": character_class,
             "level": level,
-            "strength": strength,
-            "magic": magic,
-            "health": health,
+            "strength": tempcharacter[0],
+            "magic": tempcharacter[1],
+            "health": tempcharacter[2],
             "gold": gold
         }
 
         character.update({
-            "strength": strength,
-            "magic": magic,
-            "health": health
+            "strength": tempcharacter[0],
+            "magic": tempcharacter[1],
+            "health": tempcharacter[2]
         })
 
     return character
@@ -66,7 +68,7 @@ def calculate_stats(character_class, level):
 
     elif character_class == "Rogue":
         strength = 15 + level * 4   # Medium strength
-        magic =  15 level * 3      # Medium magic
+        magic = 15 + level * 3      # Medium magic
         health = 10 + level * 2     # Low health
 
     elif character_class == "Cleric":
