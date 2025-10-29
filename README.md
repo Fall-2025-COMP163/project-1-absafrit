@@ -3,6 +3,13 @@
 # COMP 163 - Project 1: Character Creator & Chronicles
 # 🎯 Project Overview
 
+•	Game Concept: What's your RPG world about?  This program is about creating a character to play in a fantasy realm. I tried to change the character class seciton to Fae, Human, Demon, and Guardian. However, the test cases wouldn't pass with those changes so I changed it back to the suggested character classes. 
+•	Design Choices: Why did you choose your stat formulas? I used a loop for the level up function using += 1. In order to make sure the stats also increased I had to multiply by the level variable under create a character. 
+•	Bonus Creative Features: Did you add anything unique? I tried to change the character classes to fae, human, demon and guardian, however the test cases wouldn't pass for those character classes so I switched them back to the suggessted character classes. Once project is completed, I plan on changing them back to that. 
+•	AI Usage: What AI assistance did you use and where? I used AI to create the majority of the code. I went through the code and corrected anything that needed correcting. AI wanted to use try/except in the code, but we haven't gone over that so I had to fix those functions to be if, for or while statements.
+•	How to Run: Clear instructions for testing your code. When running the code, you enter the name and the character class you would like to play. The stats for that character will then populate. 
+
+
 Build a text-based RPG character creation and story progression system that demonstrates mastery of functions and file I/O operations.
 
 # Required Functions 
