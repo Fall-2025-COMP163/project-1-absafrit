@@ -58,7 +58,7 @@ def calculate_stats(character_class, level):
     # Return a tuple: (strength, magic, health)
     if character_class == "Warrior":
         strength = 10 + level * 4
-        magic = 10 + level * 2
+        magic = 5 + level * 2
         health = 20 + level * 3
 
     elif character_class == "Mage":
