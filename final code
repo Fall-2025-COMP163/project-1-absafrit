@@ -78,9 +78,7 @@ def calculate_stats(character_class, level):
 
     else:
         raise ValueError("invalid class")
-        strength = None
-        magic = None
-        health = None
+
     return (strength, magic, health)
     
 def save_character(character, filename):
