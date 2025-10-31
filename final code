@@ -61,10 +61,7 @@ def calculate_stats(character_class, level):
     else:
         # Fix 2: Raise a ValueError for an invalid class as expected by the test
         # needs to be a tuple
-        strength = None
-        magic = None
-        health = None
-
+		return (None, None, None)
 
     return ("Strength:" strength, "Magic:" magic, "Health:" health) # Return a tuple
 
