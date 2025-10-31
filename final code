@@ -12,7 +12,6 @@ def create_character(name, character_class, level = 1, gold = 100):
     Example:
     char = create_character("Aria", "Mage") # Should return: {"name": "Aria", "class": "Mage", "level": 1, "strength": 5, "magic": 15, "health": 80, "gold": 100}
     """
-    # Fix 2: call calculate_stats and check if it returns None (indicating invalid class)
     tempcharacter_stats = calculate_stats(character_class, level)
     if tempcharacter_stats is None:
         print(f"Error: Invalid character class '{character_class}'")
@@ -39,7 +38,6 @@ def calculate_stats(character_class, level):
     - Rogues: Medium strength, medium magic, low health
     - Clerics: Medium strength, high magic, high health
     """
-    # Fix 1: Return a dictionary instead of a tuple, and None for an invalid class
     if character_class == "Warrior":
         strength = 10 + level * 4
         magic = 5 + level * 2
@@ -88,19 +86,19 @@ def save_character(character, filename):
         return False
 
     # Write the file
-    try:
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(f"Character Name: {character['name']}\n")
-            f.write(f"Class: {character['class']}\n")
-            f.write(f"Level: {character['level']}\n")
-            f.write(f"Strength: {character['strength']}\n")
-            f.write(f"Magic: {character['magic']}\n")
-            f.write(f"Health: {character['health']}\n")
-            f.write(f"Gold: {character['gold']}\n")
-        return True
-    except IOError as e:
-        print(f"Error saving character to {filename}: {e}")
-        return False
+    # Note: If file opening fails here (e.g. invalid characters in filename), 
+    # Python will raise an IOError/OSError which is outside the scope of
+    # this request as the request specified no try/except blocks.
+    f = open(filename, "w", encoding="utf-8")
+    f.write(f"Character Name: {character['name']}\n")
+    f.write(f"Class: {character['class']}\n")
+    f.write(f"Level: {character['level']}\n")
+    f.write(f"Strength: {character['strength']}\n")
+    f.write(f"Magic: {character['magic']}\n")
+    f.write(f"Health: {character['health']}\n")
+    f.write(f"Gold: {character['gold']}\n")
+    f.close()
+    return True
 
 def load_character(filename):
     """
@@ -121,12 +119,11 @@ def load_character(filename):
         return None
 
     # Read the file
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-    except IOError as e:
-        print(f"Error loading character from {filename}: {e}")
-        return None
+    # Note: File opening/reading errors (if permissions checks passed) will raise
+    # an exception here, as per the no try/except constraint.
+    f = open(filename, "r", encoding="utf-8")
+    lines = f.readlines()
+    f.close()
 
     # Parse character data
     character = {}
@@ -206,11 +203,9 @@ def level_up(character):
 
     print(f"\n{character['name']} is leveling up!")
     character['level'] += 1
-    # Fix 1: calculate_stats now returns a dictionary
     new_stats = calculate_stats(character['class'], character['level'])
 
     # Update stats if they increase
-    # Fix 1: Accessing stats from the dictionary
     stat_updates = [
         ('strength', new_stats['strength']),
         ('magic', new_stats['magic']),
@@ -227,11 +222,6 @@ def level_up(character):
     return None
 
 if __name__ == "__main__":
-    # Example usage:
-    # char = create_character("TestHero", "Warrior")
-    # display_character(char)
-    # save_character(char, "my_character.txt")
-    # loaded = load_character("my_character.txt")
     print("=== CHARACTER CREATOR ===")
     name = input("Enter your character's name: ")
     character_class = input("Enter your character's class (Warrior, Mage, Rogue, Cleric): ")
@@ -239,7 +229,6 @@ if __name__ == "__main__":
     # Create character
     character = create_character(name, character_class)
 
-    # Fix 2: Check if character creation failed before proceeding
     if character is not None:
         print("\nCharacter Created Successfully!")
         display_character(character)
