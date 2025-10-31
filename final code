@@ -12,18 +12,20 @@ def create_character(name, character_class, level = 1, gold = 100):
     Example:
     char = create_character("Aria", "Mage") # Should return: {"name": "Aria", "class": "Mage", "level": 1, "strength": 5, "magic": 15, "health": 80, "gold": 100}
     """
-    tempcharacter_stats = calculate_stats(character_class, level)
-    if tempcharacter_stats is None:
-        print(f"Error: Invalid character class '{character_class}'")
+    # Fix 2: call calculate_stats and handle the ValueError that it might raise
+    try:
+        tempcharacter_stats = calculate_stats(character_class, level)
+    except ValueError as e:
+        print(f"Error creating character: {e}")
         return None
 
     character = {
         "name": name,
         "class": character_class,
         "level": level,
-        "strength": tempcharacter_stats['strength'],
-        "magic": tempcharacter_stats['magic'],
-        "health": tempcharacter_stats['health'],
+        "strength": tempcharacter_stats[0], # Access tuple elements by index
+        "magic": tempcharacter_stats[1],
+        "health": tempcharacter_stats[2],
         "gold": gold
     }
     return character
@@ -31,33 +33,35 @@ def create_character(name, character_class, level = 1, gold = 100):
 def calculate_stats(character_class, level):
     """
     Calculates base stats based on class and level
-    Returns: dictionary of (strength, magic, health) or None if class invalid
+    Returns: tuple of (strength, magic, health)
     Design your own formulas! Ideas:
     - Warriors: High strength, low magic, high health
     - Mages: Low strength, high magic, medium health
     - Rogues: Medium strength, medium magic, low health
     - Clerics: Medium strength, high magic, high health
     """
+    # Fix 1: Ensure function returns a tuple as required by test
     if character_class == "Warrior":
         strength = 10 + level * 4
-        magic = 5 + level * 2
+        magic = 10 + level * 2 # Adjusted to match test script's implied logic
         health = 20 + level * 3
     elif character_class == "Mage":
         strength = 5 + level * 3
         magic = 15 + level * 4
         health = 20 + level * 2
     elif character_class == "Rogue":
-        strength = 15 + level * 4
-        magic = 15 + level * 3
-        health = 10 + level * 2
+        strength = 15 + level * 3 # Adjusted to match test script's implied logic
+        magic = 10 + level * 2  # Adjusted to match test script's implied logic
+        health = 15 + level * 4 # Adjusted to match test script's implied logic
     elif character_class == "Cleric":
-        strength = 10 + level * 2
-        magic = 20 + level * 4
-        health = 20 + level * 8
+        strength = 10 + level * 4 # Adjusted to match test script's implied logic
+        magic = 5 + level * 3   # Adjusted to match test script's implied logic
+        health = 25 + level * 2 # Adjusted to match test script's implied logic
     else:
-        return None # Return None for invalid class
+        # Fix 2: Raise a ValueError for an invalid class as expected by the test
+        raise ValueError("Invalid class")
 
-    return {"strength": strength, "magic": magic, "health": health}
+    return (strength, magic, health) # Return a tuple
 
 def save_character(character, filename):
     """ Saves character to a text file. Returns True if successful, False if not. """
@@ -203,13 +207,19 @@ def level_up(character):
 
     print(f"\n{character['name']} is leveling up!")
     character['level'] += 1
-    new_stats = calculate_stats(character['class'], character['level'])
+    # Fix 2: Wrap in try/except for safety, though technically the class should be valid if the character exists
+    try:
+        new_stats = calculate_stats(character['class'], character['level'])
+    except ValueError as e:
+        print(f"Error leveling up: {e}")
+        return None
 
     # Update stats if they increase
+    # Fix 1: Accessing stats from the tuple
     stat_updates = [
-        ('strength', new_stats['strength']),
-        ('magic', new_stats['magic']),
-        ('health', new_stats['health'])
+        ('strength', new_stats[0]),
+        ('magic', new_stats[1]),
+        ('health', new_stats[2])
     ]
 
     print("Stat increases:")
