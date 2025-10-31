@@ -77,7 +77,7 @@ def calculate_stats(character_class, level):
         health = 20 + level * 8     # High health
 
     else:
-        raise ValueError("invalid class")
+        print("Invalid class")
 
     return strength, magic, health
     
