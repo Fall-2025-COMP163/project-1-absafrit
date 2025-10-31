@@ -63,7 +63,7 @@ def calculate_stats(character_class, level):
         # needs to be a tuple
 		return (None, None, None)
 
-    return ("Strength:" strength, "Magic:" magic, "Health:" health) # Return a tuple
+    return (strength, magic, health) # Return a tuple
 
 def save_character(character, filename):
     """ Saves character to a text file. Returns True if successful, False if not. """
