@@ -23,23 +23,17 @@ def create_character(name, character_class, level = 1, gold = 100):
 
     if tempcharacter[0] is None or tempcharacter[1] is None or tempcharacter[2] is None:
         print(f"Error: Invalid character class '{character_class}'")
+        return None
 
-    else:
-        character = {
-            "name": name,
-            "class": character_class,
-            "level": level,
-            "strength": tempcharacter[0],
-            "magic": tempcharacter[1],
-            "health": tempcharacter[2],
-            "gold": gold
-        }
-
-        character.update({
-            "strength": tempcharacter[0],
-            "magic": tempcharacter[1],
-            "health": tempcharacter[2]
-        })
+    character = {
+        "name": name,
+        "class": character_class,
+        "level": level,
+        "strength": tempcharacter[0],
+        "magic": tempcharacter[1],
+        "health": tempcharacter[2],
+        "gold": gold
+    }
 
     return character
 
@@ -77,9 +71,11 @@ def calculate_stats(character_class, level):
         health = 20 + level * 8     # High health
 
     else:
-        return None
+        strength = None
+        magic = None
+        health = None
 
-    return strength, magic, health
+    return (strength, magic, health)
     
 def save_character(character, filename):
     """
@@ -215,6 +211,8 @@ def level_up(character):
     Modifies the character dictionary directly
     Returns: None
     """
+    # TODO: Implement this function
+    # Remember to recalculate stats for the new level
     print(f"\n{character['name']} is leveling up!")
     character['level'] += 1
 
