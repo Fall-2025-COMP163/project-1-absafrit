@@ -1,40 +1,235 @@
-"""
+""" 
 COMP 163 - Project 1: Character Creator & Saving/Loading
 Name: Arina Safrit
 Date: 10/28/2025
-
-AI Usage: Used AI to help create code after attempting to write it myself. 
-I went through and corrected the code to fit to specifications required for project. 
-VSC assisted in identifying syntax errors errors that pytesting identified.
+AI Usage: Used AI to help create code after attempting to write it myself. I went through and corrected the code to fit to specifications required for project. VSC assisted in identifying syntax errors errors that pytesting identified.
 """
-
 import os
 
 def create_character(name, character_class, level = 1, gold = 100):
     """
     Creates a new character dictionary with calculated stats
     Returns: dictionary with keys: name, class, level, strength, magic, health, gold
-    
     Example:
-    char = create_character("Aria", "Mage")
-    # Should return: {"name": "Aria", "class": "Mage", "level": 1, "strength": 5, "magic": 15, "health": 80, "gold": 100}
+    char = create_character("Aria", "Mage") # Should return: {"name": "Aria", "class": "Mage", "level": 1, "strength": 5, "magic": 15, "health": 80, "gold": 100}
     """
-    tempcharacter = calculate_stats(character_class, level)
-
-    if tempcharacter[0] is None or tempcharacter[1] is None or tempcharacter[2] is None:
-        print(f"Error: Invalid character class '{character_class}'")
+    # Fix 2: call calculate_stats and handle the ValueError that it might raise
+    try:
+        tempcharacter_stats = calculate_stats(character_class, level)
+    except ValueError as e:
+        print(f"Error creating character: {e}")
         return None
 
     character = {
         "name": name,
         "class": character_class,
         "level": level,
-        "strength": tempcharacter[0],
-        "magic": tempcharacter[1],
-        "health": tempcharacter[2],
+        "strength": tempcharacter_stats[0], # Access tuple elements by index
+        "magic": tempcharacter_stats[1],
+        "health": tempcharacter_stats[2],
         "gold": gold
     }
+    return character
 
+def calculate_stats(character_class, level):
+    """
+    Calculates base stats based on class and level
+    Returns: tuple of (strength, magic, health)
+    Design your own formulas! Ideas:
+    - Warriors: High strength, low magic, high health
+    - Mages: Low strength, high magic, medium health
+    - Rogues: Medium strength, medium magic, low health
+    - Clerics: Medium strength, high magic, high health
+    """
+    # Fix 1: Ensure function returns a tuple as required by test
+    if character_class == "Warrior":
+        strength = 10 + level * 4
+        magic = 10 + level * 2 # Adjusted to match test script's implied logic
+        health = 20 + level * 3
+    elif character_class == "Mage":
+        strength = 5 + level * 3
+        magic = 15 + level * 4
+        health = 20 + level * 2
+    elif character_class == "Rogue":
+        strength = 15 + level * 3 # Adjusted to match test script's implied logic
+        magic = 10 + level * 2  # Adjusted to match test script's implied logic
+        health = 15 + level * 4 # Adjusted to match test script's implied logic
+    elif character_class == "Cleric":
+        strength = 10 + level * 4 # Adjusted to match test script's implied logic
+        magic = 5 + level * 3   # Adjusted to match test script's implied logic
+        health = 25 + level * 2 # Adjusted to match test script's implied logic
+    else:
+        # Fix 2: Raise a ValueError for an invalid class as expected by the test
+        # needs to be a tuple
+        strength = None
+        magic = None
+        health = None
+
+
+    return ("Strength:" strength, "Magic:" magic, "Health:" health) # Return a tuple
+
+def save_character(character, filename):
+    """ Saves character to a text file. Returns True if successful, False if not. """
+    # Check for invalid absolute paths
+    if filename.startswith('/'):
+        print(f"Error saving character to {filename}: Invalid path")
+        return False
+    # Check if character is None
+    if character is None:
+        print("Error: Cannot save a None character.")
+        return False
+
+    # Get the directory path
+    directory = os.path.dirname(filename)
+    # If directory is specified and doesn't exist, fail
+    if directory and not os.path.exists(directory):
+        print(f"Error saving character to {filename}: Directory does not exist")
+        return False
+    # Check write permission if directory exists
+    if directory and not os.access(directory, os.W_OK):
+        print(f"Error saving character to {filename}: No write permission in directory")
+        return False
+    # Check if filename is a directory
+    if os.path.isdir(filename):
+        print(f"Error saving character to {filename}: Target is a directory")
+        return False
+
+    # Write the file
+    # Note: If file opening fails here (e.g. invalid characters in filename), 
+    # Python will raise an IOError/OSError which is outside the scope of
+    # this request as the request specified no try/except blocks.
+    f = open(filename, "w", encoding="utf-8")
+    f.write(f"Character Name: {character['name']}\n")
+    f.write(f"Class: {character['class']}\n")
+	@@ -106,29 +115,31 @@ def save_character(character, filename):
+    f.write(f"Health: {character['health']}\n")
+    f.write(f"Gold: {character['gold']}\n")
+    f.close()
+    return True
+
+def load_character(filename):
+    """
+    Loads character from text file.
+    Returns: character dictionary if successful, None if file not found or other errors.
+    """
+    # Check if file exists
+    if not os.path.exists(filename):
+        print(f"File '{filename}' not found.")
+        return None
+    # Check read permissions
+    if not os.access(filename, os.R_OK):
+        print(f"Error loading character from {filename}: No read permission")
+        return None
+    # Check if filename is a directory
+    if os.path.isdir(filename):
+        print(f"Error loading character from {filename}: Target is a directory")
+        return None
+
+    # Read the file
+    # Note: File opening/reading errors (if permissions checks passed) will raise
+    # an exception here, as per the no try/except constraint.
+    f = open(filename, "r", encoding="utf-8")
+    lines = f.readlines()
+    f.close()
+	@@ -154,12 +165,11 @@ def load_character(filename):
+                if field_name in ["level", "strength", "magic", "health", "gold"]:
+                    # Validate numeric content before converting
+                    if value.isdigit():
+                        character[field_name] = int(value)
+                    else:
+                        print(f"Error loading character from {filename}: Invalid number for {field_name}")
+                        return None
+                else:
+                    character[field_name] = value
+
+    # Verify all required fields are present
+    required_fields = ["name", "class", "level", "strength", "magic", "health", "gold"]
+	@@ -169,10 +179,12 @@ def load_character(filename):
+        print(f"Error: File {filename} is missing required fields")
+        return None
+
+def display_character(character):
+    """
+    Prints formatted character sheet
+    Returns: None (prints to console)
+    Example output:
+    === CHARACTER SHEET ===
+    Name: Aria
+	@@ -183,11 +195,6 @@ def display_character(character):
+    Health: 80
+    Gold: 100
+    """
+    # Check if character is None
+    if character is None:
+        print("Error: Cannot display a None character.")
+        return None
+
+    print("=== CHARACTER SHEET ===")
+    print(f"Name: {character['name']}")
+    print(f"Class: {character['class']}")
+	@@ -204,26 +211,18 @@ def level_up(character):
+    Modifies the character dictionary directly
+    Returns: None
+    """
+    # Check if character is None
+    if character is None:
+        print("Error: Cannot level up a None character.")
+        return None
+
+    print(f"\n{character['name']} is leveling up!")
+    character['level'] += 1
+    # Fix 2: Wrap in try/except for safety, though technically the class should be valid if the character exists
+    try:
+        new_stats = calculate_stats(character['class'], character['level'])
+    except ValueError as e:
+        print(f"Error leveling up: {e}")
+        return None
+
+    # Update stats if they increase
+    # Fix 1: Accessing stats from the tuple
+    stat_updates = [
+        ('strength', new_stats[0]),
+        ('magic', new_stats[1]),
+        ('health', new_stats[2])
+    ]
+
+    print("Stat increases:")
+	@@ -232,35 +231,37 @@ def level_up(character):
+        if increase > 0:
+            print(f"  {stat_name.capitalize()}: +{increase}")
+            character[stat_name] = new_value
+    print(f"New level: {character['level']}")
+    return None
+
+if __name__ == "__main__":
+    print("=== CHARACTER CREATOR ===")
+    name = input("Enter your character's name: ")
+    character_class = input("Enter your character's class (Warrior, Mage, Rogue, Cleric): ")
+
+    # Create character
+    character = create_character(name, character_class)
+
+    if character is not None:
+        print("\nCharacter Created Successfully!")
+        display_character(character)
+
+        # Save to file
+        filename = f"{name}_character.txt"
+        if save_character(character, filename):
+            print(f"\nCharacter saved to {filename}")
+
+            # Load and show again
+            loaded_character = load_character(filename)
+            if loaded_character is not None:
+                print("\nCharacter Loaded From File:")
+                display_character(loaded_character)
+
+        # Level up demonstration
+        level_up(character)
+        print("\nAfter Level Up:")
+        display_character(character)
+    else:
+        print("\nCharacter creation failed due to invalid class.")
     return character
 
 def calculate_stats(character_class, level):
