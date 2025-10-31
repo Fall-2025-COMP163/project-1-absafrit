@@ -22,7 +22,6 @@ def create_character(name, character_class, level = 1, gold = 100):
     tempcharacter = calculate_stats(character_class, level)
 
     if tempcharacter[0] is None or tempcharacter[1] is None or tempcharacter[2] is None:
-        print(f"Error: Invalid character class '{character_class}'")
         return None
 
     character = {
